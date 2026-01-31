@@ -30,13 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate metadata
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO: ${{ github.repository }}
-          RELEASE_TAG: v1.0
-          USE_GITHUB_RELEASES: 'false'
-        run: npm run generate
+      # Skip metadata generation - use committed metadata from releases
+      # - name: Generate metadata
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     GITHUB_REPO: ${{ github.repository }}
+      #     RELEASE_TAG: v1.0
+      #     USE_GITHUB_RELEASES: 'false'
+      #   run: npm run generate
 
       - name: Build
         run: npm run build
