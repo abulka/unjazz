@@ -1,7 +1,25 @@
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import AudioPlayer from './AudioPlayer'
+import { usePlayer } from '../context/PlayerContext'
 
 const Layout = ({ children }) => {
+  const { currentTrack, togglePlay } = usePlayer()
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Only handle spacebar if a track is loaded and not typing in an input
+      if (e.code === 'Space' && currentTrack && 
+          !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault()
+        togglePlay()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [currentTrack, togglePlay])
+
   return (
     <div className="min-h-screen flex flex-col pb-24">
       {/* Header */}
