@@ -21,6 +21,14 @@ const Album = () => {
           track => track.album.toLowerCase().replace(/\s+/g, '-') === albumId
         )
         
+        // Sort tracks by trackNumber, then by filename
+        albumTracks.sort((a, b) => {
+          if (a.trackNumber !== b.trackNumber) {
+            return a.trackNumber - b.trackNumber
+          }
+          return a.filename.localeCompare(b.filename)
+        })
+        
         if (albumTracks.length > 0) {
           setAlbum({
             id: albumId,

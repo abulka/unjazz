@@ -20,6 +20,17 @@ export const PlayerProvider = ({ children }) => {
   const [volume, setVolume] = useState(1.0)
   const soundRef = useRef(null)
   const progressInterval = useRef(null)
+  const playlistRef = useRef([])
+  const currentTrackRef = useRef(null)
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    playlistRef.current = playlist
+  }, [playlist])
+
+  useEffect(() => {
+    currentTrackRef.current = currentTrack
+  }, [currentTrack])
 
   // Update Media Session API
   useEffect(() => {
@@ -152,17 +163,17 @@ export const PlayerProvider = ({ children }) => {
   }
 
   const next = () => {
-    if (playlist.length === 0) return
-    const currentIndex = playlist.findIndex(t => t.id === currentTrack?.id)
-    const nextIndex = (currentIndex + 1) % playlist.length
-    playTrack(playlist[nextIndex])
+    if (playlistRef.current.length === 0) return
+    const currentIndex = playlistRef.current.findIndex(t => t.id === currentTrackRef.current?.id)
+    const nextIndex = (currentIndex + 1) % playlistRef.current.length
+    playTrack(playlistRef.current[nextIndex])
   }
 
   const previous = () => {
-    if (playlist.length === 0) return
-    const currentIndex = playlist.findIndex(t => t.id === currentTrack?.id)
-    const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1
-    playTrack(playlist[prevIndex])
+    if (playlistRef.current.length === 0) return
+    const currentIndex = playlistRef.current.findIndex(t => t.id === currentTrackRef.current?.id)
+    const prevIndex = currentIndex === 0 ? playlistRef.current.length - 1 : currentIndex - 1
+    playTrack(playlistRef.current[prevIndex])
   }
 
   const value = {
