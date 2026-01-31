@@ -21,6 +21,15 @@ const TrackItem = ({ track, playlist, waveformData }) => {
     }
   }
 
+  const handleWaveformSeek = (time) => {
+    if (isCurrentTrack) {
+      seek(time)
+    } else {
+      // Start playing this track at the clicked position
+      playTrack(track, playlist, time)
+    }
+  }
+
   return (
     <div className={`group p-4 rounded-lg hover:bg-soundcloud-gray-medium transition-colors ${
       isCurrentTrack ? 'bg-soundcloud-gray-medium' : ''
@@ -61,7 +70,7 @@ const TrackItem = ({ track, playlist, waveformData }) => {
               waveformData={waveformData}
               progress={isCurrentTrack ? progress : 0}
               duration={isCurrentTrack ? duration : track.duration}
-              onSeek={isCurrentTrack ? seek : null}
+              onSeek={handleWaveformSeek}
             />
           )}
         </div>

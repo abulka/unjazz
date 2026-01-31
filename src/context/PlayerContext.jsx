@@ -73,7 +73,7 @@ export const PlayerProvider = ({ children }) => {
     }
   }, [isPlaying, duration])
 
-  const loadTrack = (track) => {
+  const loadTrack = (track, startTime = 0) => {
     if (soundRef.current) {
       soundRef.current.unload()
     }
@@ -84,6 +84,11 @@ export const PlayerProvider = ({ children }) => {
       volume: volume,
       onload: function() {
         setDuration(sound.duration())
+        // Seek to start time if specified
+        if (startTime > 0) {
+          sound.seek(startTime)
+          setProgress(startTime)
+        }
       },
       onplay: function() {
         setIsPlaying(true)
@@ -101,7 +106,7 @@ export const PlayerProvider = ({ children }) => {
 
     soundRef.current = sound
     setCurrentTrack(track)
-    setProgress(0)
+    setProgress(startTime)
   }
 
   const play = () => {
@@ -138,11 +143,11 @@ export const PlayerProvider = ({ children }) => {
     }
   }
 
-  const playTrack = (track, newPlaylist = null) => {
+  const playTrack = (track, newPlaylist = null, startTime = 0) => {
     if (newPlaylist) {
       setPlaylist(newPlaylist)
     }
-    loadTrack(track)
+    loadTrack(track, startTime)
     setTimeout(() => play(), 100)
   }
 
