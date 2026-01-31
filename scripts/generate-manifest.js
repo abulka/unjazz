@@ -4,6 +4,10 @@ import { parseFile } from 'music-metadata'
 import { Octokit } from '@octokit/rest'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import dotenv from 'dotenv'
+
+// Load environment variables from .env file
+dotenv.config()
 
 const execAsync = promisify(exec)
 
@@ -22,10 +26,31 @@ const CONFIG = {
 const octokit = CONFIG.githubToken ? new Octokit({ auth: CONFIG.githubToken }) : null
 
 /**
+ * Simple deterministic hash function for seeding
+ */
+function hashString(str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return Math.abs(hash)
+}
+
+/**
+ * Seeded random number generator
+ */
+function seededRandom(seed) {
+  let x = Math.sin(seed++) * 10000
+  return x - Math.floor(x)
+}
+
+/**
  * Generate waveform data from MP3 file
  * Returns array of normalized amplitudes (0-1)
  */
-async function generateWaveform(filePath, samples = 200) {
+async function generateWaveform(filePath, trackId, samples = 200) {
   try {
     // Try using audiowaveform CLI if available
     const outputPath = filePath.replace('.mp3', '.json')
@@ -39,16 +64,99 @@ async function generateWaveform(filePath, samples = 200) {
     const max = Math.max(...data.map(Math.abs))
     return data.map(v => Math.abs(v) / max)
   } catch (error) {
-    // Fallback: generate simple waveform from file size (placeholder)
-    console.warn(`Audiowaveform not available for ${filePath}, using fallback`)
-    return Array.from({ length: samples }, () => Math.random() * 0.5 + 0.3)
+    // Fallback: generate deterministic waveform based on filename
+    console.warn(`Audiowaveform not available for ${filePath}, using deterministic fallback`)
+    const seed = hashString(trackId)
+    return Array.from({ length: samples }, (_, i) => {
+      return seededRandom(seed + i) * 0.5 + 0.3
+    })
+  }
+}
+
+/**
+ * Get or create GitHub Release
+ */
+async function getOrCreateRelease() {
+  if (!octokit || !CONFIG.githubRepo) {
+    return null
+  }
+
+  const [owner, repo] = CONFIG.githubRepo.split('/')
+  
+  try {
+    // Check if release exists
+    const release = await octokit.repos.getReleaseByTag({
+      owner,
+      repo,
+      tag: CONFIG.releaseTag
+    })
+    return release.data
+  } catch (err) {
+    // Create release if it doesn't exist
+    const release = await octokit.repos.createRelease({
+      owner,
+      repo,
+      tag_name: CONFIG.releaseTag,
+      name: `Audio Files ${CONFIG.releaseTag}`,
+      body: 'Audio files for Unjazz music player',
+      draft: false,
+      prerelease: false
+    })
+    return release.data
+  }
+}
+
+/**
+ * Get list of assets in the release
+ */
+async function getReleaseAssets(release) {
+  if (!octokit || !CONFIG.githubRepo) {
+    return []
+  }
+
+  const [owner, repo] = CONFIG.githubRepo.split('/')
+  
+  try {
+    const { data: assets } = await octokit.repos.listReleaseAssets({
+      owner,
+      repo,
+      release_id: release.id,
+      per_page: 100
+    })
+    return assets
+  } catch (error) {
+    console.error('Error fetching release assets:', error.message)
+    return []
+  }
+}
+
+/**
+ * Delete asset from release
+ */
+async function deleteReleaseAsset(assetId) {
+  if (!octokit || !CONFIG.githubRepo) {
+    return false
+  }
+
+  const [owner, repo] = CONFIG.githubRepo.split('/')
+  
+  try {
+    await octokit.repos.deleteReleaseAsset({
+      owner,
+      repo,
+      asset_id: assetId
+    })
+    return true
+  } catch (error) {
+    console.error(`Error deleting asset ${assetId}:`, error.message)
+    return false
   }
 }
 
 /**
  * Upload file to GitHub Release
  */
-async function uploadToGitHubRelease(filePath, fileName) {
+async function uploadToGitHubRelease(filePath, fileName, release) {
   if (!octokit || !CONFIG.githubRepo) {
     console.warn('GitHub credentials not configured, skipping upload')
     return null
@@ -57,33 +165,12 @@ async function uploadToGitHubRelease(filePath, fileName) {
   const [owner, repo] = CONFIG.githubRepo.split('/')
   
   try {
-    // Check if release exists, create if not
-    let release
-    try {
-      release = await octokit.repos.getReleaseByTag({
-        owner,
-        repo,
-        tag: CONFIG.releaseTag
-      })
-    } catch (err) {
-      // Create release if it doesn't exist
-      release = await octokit.repos.createRelease({
-        owner,
-        repo,
-        tag_name: CONFIG.releaseTag,
-        name: `Audio Files ${CONFIG.releaseTag}`,
-        body: 'Audio files for Unjazz music player',
-        draft: false,
-        prerelease: false
-      })
-    }
-
     // Upload asset
     const fileContent = await fs.readFile(filePath)
     const uploadResponse = await octokit.repos.uploadReleaseAsset({
       owner,
       repo,
-      release_id: release.data.id,
+      release_id: release.id,
       name: fileName,
       data: fileContent
     })
@@ -132,6 +219,19 @@ async function generateManifest() {
 
   const tracks = []
   const waveforms = {}
+  const expectedAssets = new Set() // Track what should exist in release
+
+  // Get release if using GitHub Releases
+  let release = null
+  let existingAssets = []
+  if (CONFIG.useGithubReleases) {
+    console.log('📦 Fetching GitHub Release...')
+    release = await getOrCreateRelease()
+    if (release) {
+      existingAssets = await getReleaseAssets(release)
+      console.log(`   Found ${existingAssets.length} existing assets\n`)
+    }
+  }
 
   try {
     // Read albums directory
@@ -151,11 +251,23 @@ async function generateManifest() {
       let artworkUrl = null
 
       if (artworkFile) {
+        const artworkAssetName = `${albumDir}-${artworkFile}`
+        expectedAssets.add(artworkAssetName)
+        
         if (CONFIG.useGithubReleases) {
-          artworkUrl = await uploadToGitHubRelease(
-            path.join(albumPath, artworkFile),
-            `${albumDir}-${artworkFile}`
-          )
+          // Check if already exists
+          const existingAsset = existingAssets.find(a => a.name === artworkAssetName)
+          if (existingAsset) {
+            console.log(`   ✓ Artwork already uploaded: ${artworkFile}`)
+            artworkUrl = existingAsset.browser_download_url
+          } else {
+            console.log(`   ⬆️  Uploading artwork: ${artworkFile}`)
+            artworkUrl = await uploadToGitHubRelease(
+              path.join(albumPath, artworkFile),
+              artworkAssetName,
+              release
+            )
+          }
         } else {
           artworkUrl = `${CONFIG.basePath}/albums/${albumDir}/${artworkFile}`
         }
@@ -173,28 +285,47 @@ async function generateManifest() {
         if (!metadata) continue
 
         // Generate or upload MP3 URL
+        const mp3AssetName = `${albumDir}-${mp3File}`
+        expectedAssets.add(mp3AssetName)
         let audioUrl
+        
         if (CONFIG.useGithubReleases) {
-          console.log(`    ⬆️  Uploading to GitHub Releases...`)
-          audioUrl = await uploadToGitHubRelease(mp3Path, `${albumDir}-${mp3File}`)
-          if (!audioUrl) {
-            console.error(`    ❌ Failed to upload ${mp3File}`)
-            continue
+          // Check if already exists
+          const existingAsset = existingAssets.find(a => a.name === mp3AssetName)
+          if (existingAsset) {
+            console.log(`    ✓ Already uploaded`)
+            audioUrl = existingAsset.browser_download_url
+          } else {
+            console.log(`    ⬆️  Uploading to GitHub Releases...`)
+            audioUrl = await uploadToGitHubRelease(mp3Path, mp3AssetName, release)
+            if (!audioUrl) {
+              console.error(`    ❌ Failed to upload ${mp3File}`)
+              continue
+            }
           }
         } else {
           audioUrl = `${CONFIG.basePath}/albums/${albumDir}/${mp3File}`
         }
 
-        // Generate waveform
-        console.log(`    🌊 Generating waveform...`)
-        const waveformData = await generateWaveform(mp3Path)
+        // Generate waveform (check if already exists to avoid re-processing)
+        const waveformPath = path.join(CONFIG.metadataDir, 'waveforms', `${metadata.id}.json`)
+        let waveformData
+        
+        try {
+          // Try to load existing waveform
+          const existingWaveform = await fs.readFile(waveformPath, 'utf-8')
+          waveformData = JSON.parse(existingWaveform)
+          console.log(`    ✓ Using cached waveform`)
+        } catch (error) {
+          // Generate new waveform if not cached
+          console.log(`    🌊 Generating waveform...`)
+          waveformData = await generateWaveform(mp3Path, metadata.id)
+          
+          // Save individual waveform file
+          await fs.writeFile(waveformPath, JSON.stringify(waveformData))
+        }
+        
         waveforms[metadata.id] = waveformData
-
-        // Save individual waveform file
-        await fs.writeFile(
-          path.join(CONFIG.metadataDir, 'waveforms', `${metadata.id}.json`),
-          JSON.stringify(waveformData)
-        )
 
         // Add track to manifest
         tracks.push({
@@ -205,6 +336,26 @@ async function generateManifest() {
         })
 
         console.log(`    ✅ Completed`)
+      }
+    }
+
+    // Clean up orphaned assets from release
+    if (CONFIG.useGithubReleases && release && existingAssets.length > 0) {
+      console.log(`\n🧹 Cleaning up orphaned assets...`)
+      let deletedCount = 0
+      
+      for (const asset of existingAssets) {
+        if (!expectedAssets.has(asset.name)) {
+          console.log(`   🗑️  Deleting: ${asset.name}`)
+          const success = await deleteReleaseAsset(asset.id)
+          if (success) deletedCount++
+        }
+      }
+      
+      if (deletedCount > 0) {
+        console.log(`   Deleted ${deletedCount} orphaned asset(s)`)
+      } else {
+        console.log(`   No orphaned assets found`)
       }
     }
 

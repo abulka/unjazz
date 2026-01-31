@@ -20,6 +20,7 @@
     "@octokit/rest": "^20.0.2",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
+    "dotenv": "^17.2.3",
     "gh-pages": "^6.1.1",
     "music-metadata": "^9.0.0",
     "postcss": "^8.4.35",
