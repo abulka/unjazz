@@ -1,0 +1,57 @@
+{
+  "tracks": [
+    {
+      "id": "2025-12-06-stable-audio-2.5---02",
+      "title": "2025-12-06 stable-audio-2.5 - 02",
+      "artist": "Unknown Artist",
+      "album": "test-album",
+      "albumDescription": "",
+      "duration": 190.0408163265306,
+      "filename": "2025-12-06 stable-audio-2.5 - 02.mp3",
+      "trackNumber": 0,
+      "url": "/unjazz/albums/test-album/2025-12-06 stable-audio-2.5 - 02.mp3",
+      "artwork": null,
+      "waveform": "/unjazz/metadata/waveforms/2025-12-06-stable-audio-2.5---02.json"
+    },
+    {
+      "id": "2025-12-26-faure-libera-me-midi",
+      "title": "2025-12-26 Faure Libera Me Midi",
+      "artist": "Unknown Artist",
+      "album": "test-album",
+      "albumDescription": "",
+      "duration": 67.488,
+      "filename": "2025-12-26 Faure Libera Me Midi.mp3",
+      "trackNumber": 0,
+      "url": "/unjazz/albums/test-album/2025-12-26 Faure Libera Me Midi.mp3",
+      "artwork": null,
+      "waveform": "/unjazz/metadata/waveforms/2025-12-26-faure-libera-me-midi.json"
+    },
+    {
+      "id": "deep-cooking---bass-fragment1",
+      "title": "Deep Cooking - bass fragment1",
+      "artist": "Unknown Artist",
+      "album": "test-album",
+      "albumDescription": "",
+      "duration": 8.952,
+      "filename": "Deep Cooking - bass fragment1.mp3",
+      "trackNumber": 0,
+      "url": "/unjazz/albums/test-album/Deep Cooking - bass fragment1.mp3",
+      "artwork": null,
+      "waveform": "/unjazz/metadata/waveforms/deep-cooking---bass-fragment1.json"
+    },
+    {
+      "id": "stable-audio-2.5---02-(cover)",
+      "title": "stable-audio-2.5 - 02 (Cover)",
+      "artist": "abulka",
+      "album": "test-album",
+      "albumDescription": "made with suno; created=2025-12-06T04:19:09.751Z; id=b8e4f9f7-00d0-45e4-8f95-29f6bff28afb",
+      "duration": 304.92,
+      "filename": "stable-audio-2.5 - 02 (Cover).mp3",
+      "trackNumber": 0,
+      "url": "/unjazz/albums/test-album/stable-audio-2.5 - 02 (Cover).mp3",
+      "artwork": null,
+      "waveform": "/unjazz/metadata/waveforms/stable-audio-2.5---02-(cover).json"
+    }
+  ],
+  "generatedAt": "2026-01-31T03:03:25.396Z"
+}
