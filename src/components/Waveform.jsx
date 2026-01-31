@@ -20,21 +20,23 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
     ctx.clearRect(0, 0, rect.width, rect.height)
 
     const barCount = waveformData.length
-    const barGap = 1
-    const barWidth = Math.max(2, (rect.width - (barCount - 1) * barGap) / barCount)
+    const barGap = 0.5
+    const barWidth = Math.max(1, (rect.width - (barCount - 1) * barGap) / barCount)
     const progressRatio = duration > 0 ? progress / duration : 0
+    const centerY = rect.height / 2
 
-    // Draw waveform bars
+    // Draw waveform bars (symmetric/mirror style)
     waveformData.forEach((amplitude, index) => {
       const x = index * (barWidth + barGap)
-      const barHeight = amplitude * rect.height * 0.8
-      const y = (rect.height - barHeight) / 2
+      const barHeight = amplitude * (rect.height / 2) * 0.9
 
       // Choose color based on progress
       const isPlayed = index / barCount <= progressRatio
       ctx.fillStyle = isPlayed ? '#ff5500' : 'rgba(255, 255, 255, 0.3)'
       
-      ctx.fillRect(x, y, barWidth, barHeight)
+      // Draw symmetric bars (top and bottom from center)
+      ctx.fillRect(x, centerY - barHeight, barWidth, barHeight)
+      ctx.fillRect(x, centerY, barWidth, barHeight)
     })
   }, [waveformData, progress, duration])
 

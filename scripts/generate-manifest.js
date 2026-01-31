@@ -50,19 +50,33 @@ function seededRandom(seed) {
  * Generate waveform data from MP3 file
  * Returns array of normalized amplitudes (0-1)
  */
-async function generateWaveform(filePath, trackId, samples = 200) {
+async function generateWaveform(filePath, trackId, samples = 500) {
   try {
     // Try using audiowaveform CLI if available
     const outputPath = filePath.replace('.mp3', '.json')
-    await execAsync(`audiowaveform -i "${filePath}" -o "${outputPath}" --pixels-per-second 10`)
+    await execAsync(`audiowaveform -i "${filePath}" -o "${outputPath}" --pixels-per-second 20 --bits 8`)
     
     const waveformData = JSON.parse(await fs.readFile(outputPath, 'utf-8'))
     await fs.unlink(outputPath) // Clean up temp file
     
-    // Normalize data
+    // audiowaveform returns min/max pairs, we'll use max values for amplitude
     const data = waveformData.data
-    const max = Math.max(...data.map(Math.abs))
-    return data.map(v => Math.abs(v) / max)
+    const maxValues = []
+    for (let i = 0; i < data.length; i += 2) {
+      maxValues.push(Math.abs(data[i + 1])) // Use max value from each pair
+    }
+    
+    // Resample to fixed length for consistent display
+    const resampled = []
+    const step = maxValues.length / samples
+    for (let i = 0; i < samples; i++) {
+      const index = Math.floor(i * step)
+      resampled.push(maxValues[index] || 0)
+    }
+    
+    // Normalize to 0-1 range
+    const max = Math.max(...resampled)
+    return resampled.map(v => v / max)
   } catch (error) {
     // Fallback: generate deterministic waveform based on filename
     console.warn(`Audiowaveform not available for ${filePath}, using deterministic fallback`)

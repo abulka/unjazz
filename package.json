@@ -8,6 +8,7 @@
     "postbuild": "cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "generate": "node scripts/generate-manifest.js",
+    "generate:clean": "rm -rf public/metadata/waveforms/*.json && npm run generate",
     "deploy": "npm run generate && npm run build && gh-pages -d dist"
   },
   "dependencies": {
