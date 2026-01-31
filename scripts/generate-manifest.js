@@ -74,6 +74,14 @@ async function generateWaveform(filePath, trackId, samples = 200) {
 }
 
 /**
+ * Normalize filename for GitHub asset comparison
+ * GitHub converts spaces and some special chars to dots/hyphens
+ */
+function normalizeAssetName(filename) {
+  return filename.replace(/\s+/g, '.').replace(/[()]/g, '')
+}
+
+/**
  * Get or create GitHub Release
  */
 async function getOrCreateRelease() {
@@ -252,11 +260,12 @@ async function generateManifest() {
 
       if (artworkFile) {
         const artworkAssetName = `${albumDir}-${artworkFile}`
-        expectedAssets.add(artworkAssetName)
+        const normalizedAssetName = normalizeAssetName(artworkAssetName)
+        expectedAssets.add(normalizedAssetName)
         
         if (CONFIG.useGithubReleases) {
-          // Check if already exists
-          const existingAsset = existingAssets.find(a => a.name === artworkAssetName)
+          // Check if already exists (compare normalized names)
+          const existingAsset = existingAssets.find(a => normalizeAssetName(a.name) === normalizedAssetName)
           if (existingAsset) {
             console.log(`   ✓ Artwork already uploaded: ${artworkFile}`)
             artworkUrl = existingAsset.browser_download_url
@@ -286,12 +295,13 @@ async function generateManifest() {
 
         // Generate or upload MP3 URL
         const mp3AssetName = `${albumDir}-${mp3File}`
-        expectedAssets.add(mp3AssetName)
+        const normalizedMp3Name = normalizeAssetName(mp3AssetName)
+        expectedAssets.add(normalizedMp3Name)
         let audioUrl
         
         if (CONFIG.useGithubReleases) {
-          // Check if already exists
-          const existingAsset = existingAssets.find(a => a.name === mp3AssetName)
+          // Check if already exists (compare normalized names)
+          const existingAsset = existingAssets.find(a => normalizeAssetName(a.name) === normalizedMp3Name)
           if (existingAsset) {
             console.log(`    ✓ Already uploaded`)
             audioUrl = existingAsset.browser_download_url
@@ -345,7 +355,8 @@ async function generateManifest() {
       let deletedCount = 0
       
       for (const asset of existingAssets) {
-        if (!expectedAssets.has(asset.name)) {
+        const normalizedName = normalizeAssetName(asset.name)
+        if (!expectedAssets.has(normalizedName)) {
           console.log(`   🗑️  Deleting: ${asset.name}`)
           const success = await deleteReleaseAsset(asset.id)
           if (success) deletedCount++
@@ -368,7 +379,7 @@ async function generateManifest() {
     // Write tracks.json
     await fs.writeFile(
       path.join(CONFIG.metadataDir, 'tracks.json'),
-      JSON.stringify({ tracks, generatedAt: new Date().toISOString() }, null, 2)
+      JSON.stringify({ tracks }, null, 2)
     )
 
     // Write waveforms.json (all waveforms in one file for efficiency)
