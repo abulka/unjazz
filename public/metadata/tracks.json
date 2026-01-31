@@ -9,8 +9,8 @@
       "duration": 190.0408163265306,
       "filename": "2025-12-06 stable-audio-2.5 - 02.mp3",
       "trackNumber": 0,
-      "url": "/unjazz/albums/test-album/2025-12-06 stable-audio-2.5 - 02.mp3",
-      "artwork": "/unjazz/albums/test-album/cover- DSC00346.png",
+      "url": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-2025-12-06.stable-audio-2.5.-.02.mp3",
+      "artwork": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/2025-12-06-stable-audio-2.5---02.json"
     },
     {
@@ -22,8 +22,8 @@
       "duration": 67.488,
       "filename": "2025-12-26 Faure Libera Me Midi.mp3",
       "trackNumber": 0,
-      "url": "/unjazz/albums/test-album/2025-12-26 Faure Libera Me Midi.mp3",
-      "artwork": "/unjazz/albums/test-album/cover- DSC00346.png",
+      "url": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-2025-12-26.Faure.Libera.Me.Midi.mp3",
+      "artwork": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/2025-12-26-faure-libera-me-midi.json"
     },
     {
@@ -35,8 +35,8 @@
       "duration": 8.952,
       "filename": "Deep Cooking - bass fragment1.mp3",
       "trackNumber": 0,
-      "url": "/unjazz/albums/test-album/Deep Cooking - bass fragment1.mp3",
-      "artwork": "/unjazz/albums/test-album/cover- DSC00346.png",
+      "url": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-Deep.Cooking.-.bass.fragment1.mp3",
+      "artwork": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/deep-cooking---bass-fragment1.json"
     },
     {
@@ -48,10 +48,10 @@
       "duration": 304.92,
       "filename": "stable-audio-2.5 - 02 (Cover).mp3",
       "trackNumber": 0,
-      "url": "/unjazz/albums/test-album/stable-audio-2.5 - 02 (Cover).mp3",
-      "artwork": "/unjazz/albums/test-album/cover- DSC00346.png",
+      "url": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-stable-audio-2.5.-.02.Cover.mp3",
+      "artwork": "https://github.com/abulka/unjazz/releases/download/v1.0/test-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/stable-audio-2.5---02-(cover).json"
     }
   ],
-  "generatedAt": "2026-01-31T05:39:59.190Z"
+  "generatedAt": "2026-01-31T05:51:53.997Z"
 }
