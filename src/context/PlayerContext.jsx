@@ -91,7 +91,12 @@ export const PlayerProvider = ({ children }) => {
 
     const sound = new Howl({
       src: [track.url],
-      html5: true,
+      html5: false, // Use Web Audio API instead of HTML5 audio element (better CORS handling)
+      xhr: {
+        method: 'GET',
+        headers: {},
+        withCredentials: false
+      },
       volume: volume,
       onload: function() {
         setDuration(sound.duration())
