@@ -19,15 +19,13 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
     // Clear canvas
     ctx.clearRect(0, 0, rect.width, rect.height)
 
-    const barWidth = 3
+    const barCount = waveformData.length
     const barGap = 1
-    const barCount = Math.floor(rect.width / (barWidth + barGap))
+    const barWidth = Math.max(2, (rect.width - (barCount - 1) * barGap) / barCount)
     const progressRatio = duration > 0 ? progress / duration : 0
 
     // Draw waveform bars
     waveformData.forEach((amplitude, index) => {
-      if (index >= barCount) return
-
       const x = index * (barWidth + barGap)
       const barHeight = amplitude * rect.height * 0.8
       const y = (rect.height - barHeight) / 2
