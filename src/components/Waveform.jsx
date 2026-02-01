@@ -77,7 +77,7 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
   const handleClick = (e) => {
     if (!duration || !onSeek) return
     
-    // Debounce: ignore seeks within 300ms of each other
+    // Debounce: ignore clicks within 300ms of each other
     const now = Date.now()
     if (now - lastSeekTime.current < 300) {
       return
@@ -85,18 +85,8 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
     lastSeekTime.current = now
     
     const rect = canvasRef.current.getBoundingClientRect()
-    
-    // Handle both mouse and touch events
-    let clientX
+    const clientX = e.clientX
     const eventType = e.type
-    if (e.type.startsWith('touch')) {
-      e.preventDefault()
-      e.stopPropagation()
-      const touch = e.touches[0] || e.changedTouches[0]
-      clientX = touch.clientX
-    } else {
-      clientX = e.clientX
-    }
     
     const x = clientX - rect.left
     const ratio = Math.max(0, Math.min(1, x / rect.width))
@@ -130,8 +120,7 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
         ref={canvasRef}
         className={`waveform-container ${className}`}
         onClick={handleClick}
-        onTouchStart={handleClick}
-        style={{ width: '100%', height: '100%', cursor: 'pointer', touchAction: 'none' }}
+        style={{ width: '100%', height: '100%', cursor: 'pointer', touchAction: 'manipulation' }}
       />
       {DEBUG_MODE && touchIndicator && (
         <>
