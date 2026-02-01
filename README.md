@@ -77,7 +77,21 @@ npm install
 
 # Start development server
 npm run dev
+
+# Start development server with network access (for testing on iPhone)
+npm run dev:host
 ```
+
+## 📱 Testing on iPhone
+
+To test the mobile experience on your physical iPhone while developing:
+
+1.  **Start the host server:**
+    Run `npm run dev:host`.
+2.  **Find your IP address:**
+    Vite will display a URL like `http://192.168.1.XX:5173/unjazz/`.
+3.  **Connect:**
+    Ensure your iPhone is on the same Wi-Fi network as your Mac, then open that URL in Safari.
 
 ## 📝 Adding Music
 
