@@ -24,12 +24,12 @@ const Layout = ({ children }) => {
     <div className="min-h-screen flex flex-col pb-24">
       {/* Header */}
       <header className="bg-soundcloud-gray-dark border-b border-soundcloud-gray-medium sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-2xl font-bold text-soundcloud-orange">
+            <Link to="/" className="text-xl sm:text-2xl font-bold text-soundcloud-orange">
               Unjazz
             </Link>
-            <nav className="flex gap-6">
+            <nav className="flex gap-4 sm:gap-6 text-sm sm:text-base">
               <Link to="/" className="hover:text-soundcloud-orange transition-colors">
                 Home
               </Link>

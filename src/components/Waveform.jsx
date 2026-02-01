@@ -31,16 +31,15 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
     if (!canvasRef.current || !waveformData || canvasSize.width === 0) return
 
     const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d', { alpha: false })
+    const ctx = canvas.getContext('2d')
     const dpr = window.devicePixelRatio || 1
     
     // Set canvas size based on observed dimensions
     canvas.width = canvasSize.width * dpr
     canvas.height = canvasSize.height * dpr
     
-    // Fill background
-    ctx.fillStyle = '#2a2a2a'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     
     // Scale for logical coordinate drawing
     ctx.scale(dpr, dpr)
@@ -126,13 +125,13 @@ const Waveform = ({ waveformData, progress, duration, onSeek, className = '' }) 
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', height: '100%' }}>
       <canvas
         ref={canvasRef}
         className={`waveform-container ${className}`}
         onClick={handleClick}
         onTouchStart={handleClick}
-        style={{ width: '100%', height: '80px', cursor: 'pointer', touchAction: 'none' }}
+        style={{ width: '100%', height: '100%', cursor: 'pointer', touchAction: 'none' }}
       />
       {DEBUG_MODE && touchIndicator && (
         <>

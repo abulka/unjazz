@@ -1,7 +1,7 @@
 const About = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8">About Unjazz</h1>
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">About Unjazz</h1>
       
       <div className="prose prose-invert max-w-none">
         <section className="mb-8">

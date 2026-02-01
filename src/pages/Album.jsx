@@ -72,44 +72,51 @@ const Album = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <Link to="/" className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-8">
+    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
+      <Link to="/" className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-4 sm:mb-8">
         <ArrowLeft size={20} />
         Back to Home
       </Link>
 
       {/* Album Header */}
-      <div className="flex flex-col md:flex-row gap-8 mb-12">
-        <div className="flex-shrink-0">
+      <div className="flex flex-col sm:flex-row gap-6 mb-8 sm:mb-12">
+        <div className="flex-shrink-0 flex justify-center sm:block">
           {album.artwork ? (
             <img 
               src={album.artwork} 
               alt={album.title}
-              className="w-64 h-64 rounded-lg object-cover shadow-2xl"
+              className="w-40 h-40 sm:w-64 sm:h-64 rounded-lg object-cover shadow-2xl"
             />
           ) : (
-            <div className="w-64 h-64 rounded-lg bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark flex items-center justify-center">
-              <Music size={96} className="text-gray-600" />
+            <div className="w-40 h-40 sm:w-64 sm:h-64 rounded-lg bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark flex items-center justify-center">
+              <Music size={48} className="sm:w-24 sm:h-24 text-gray-600" />
             </div>
           )}
         </div>
 
-        <div className="flex-1">
-          <div className="text-sm text-gray-400 mb-2">ALBUM</div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{album.title}</h1>
-          <p className="text-xl text-gray-400 mb-4">{album.artist}</p>
+        <div className="flex-1 text-center sm:text-left flex flex-col justify-end">
+          <div className="text-xs sm:text-sm text-gray-400 mb-1 uppercase tracking-wider">Album</div>
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2">{album.title}</h1>
+          <p className="text-base sm:text-xl text-gray-400">{album.artist}</p>
+          <div className="text-xs sm:text-sm text-gray-500 mt-2">
+            {tracks.length} tracks
+          </div>
+        </div>
+      </div>
           {album.description && (
-            <p className="text-gray-300 mb-4">{album.description}</p>
+            <p className="text-gray-300 text-sm sm:text-base mb-4 max-w-2xl line-clamp-3 sm:line-clamp-none">
+              {album.description}
+            </p>
           )}
-          <div className="text-sm text-gray-400">
+          <div className="text-xs sm:text-sm text-gray-400">
             {tracks.length} track{tracks.length !== 1 ? 's' : ''}
           </div>
         </div>
       </div>
 
       {/* Track List */}
-      <div className="bg-soundcloud-gray-dark rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-6">Tracks</h2>
+      <div className="bg-soundcloud-gray-dark rounded-lg p-3 sm:p-6 mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 px-1">Tracks</h2>
         <TrackList tracks={tracks} waveforms={waveforms} />
       </div>
     </div>

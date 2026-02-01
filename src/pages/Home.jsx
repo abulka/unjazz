@@ -47,11 +47,11 @@ const Home = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
       {/* Hero Section */}
-      <section className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Discover Music</h1>
-        <p className="text-gray-400 text-lg">
+      <section className="mb-8 sm:mb-12">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-4">Discover Music</h1>
+        <p className="text-gray-400 text-base sm:text-lg">
           Stream your favorite tracks and albums
         </p>
       </section>
@@ -59,8 +59,8 @@ const Home = () => {
       {/* Albums Grid */}
       {albums.length > 0 ? (
         <section>
-          <h2 className="text-2xl font-bold mb-6">Albums</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Albums</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {albums.map(album => (
               <AlbumCard 
                 key={album.id} 
