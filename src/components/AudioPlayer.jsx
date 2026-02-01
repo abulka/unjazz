@@ -48,7 +48,6 @@ const AudioPlayer = () => {
                 src={currentTrack.artwork} 
                 alt={currentTrack.title}
                 className="w-12 h-12 rounded object-cover flex-shrink-0"
-                style={{ filter: 'none !important' }}
               />
             )}
             <div className="min-w-0">
