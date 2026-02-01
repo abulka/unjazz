@@ -19,7 +19,8 @@ const CONFIG = {
   githubRepo: process.env.GITHUB_REPO || '', // Format: 'username/repo-name'
   githubToken: process.env.GITHUB_TOKEN || '',
   releaseTag: process.env.RELEASE_TAG || 'v1.0',
-  useGithubReleases: process.env.USE_GITHUB_RELEASES === 'true'
+  useGithubReleases: process.env.USE_GITHUB_RELEASES === 'true',
+  corsProxyUrl: process.env.CORS_PROXY_URL || '' // Cloudflare Worker URL for CORS
 }
 
 // Initialize GitHub API client
@@ -93,6 +94,17 @@ async function generateWaveform(filePath, trackId, samples = 500) {
  */
 function normalizeAssetName(filename) {
   return filename.replace(/\s+/g, '.').replace(/[()]/g, '')
+}
+
+/**
+ * Wrap URL with CORS proxy if configured
+ * This enables Safari compatibility with GitHub Releases
+ */
+function wrapWithCorsProxy(url) {
+  if (!CONFIG.corsProxyUrl || !url.startsWith('https://github.com/')) {
+    return url
+  }
+  return `${CONFIG.corsProxyUrl}?url=${encodeURIComponent(url)}`
 }
 
 /**
@@ -354,8 +366,8 @@ async function generateManifest() {
         // Add track to manifest
         tracks.push({
           ...metadata,
-          url: audioUrl,
-          artwork: artworkUrl,
+          url: wrapWithCorsProxy(audioUrl),
+          artwork: wrapWithCorsProxy(artworkUrl),
           waveform: `${CONFIG.basePath}/metadata/waveforms/${metadata.id}.json`
         })
 

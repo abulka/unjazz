@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORS Proxy Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 14px;
+      background: #2a2a2a;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #ff5500;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #cc4400;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2a2a2a;
+      border-radius: 4px;
+      border-left: 3px solid #ff5500;
+    }
+    .success {
+      border-left-color: #00aa00;
+    }
+    .error {
+      border-left-color: #aa0000;
+    }
+    audio {
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 Unjazz CORS Proxy Tester</h1>
+  
+  <p>Test your Cloudflare Worker CORS proxy configuration.</p>
+  
+  <label for="workerUrl">Cloudflare Worker URL:</label>
+  <input 
+    type="text" 
+    id="workerUrl" 
+    value="https://unjazz-audio-proxy.abulka.workers.dev"
+  />
+  
+  <label for="githubUrl">GitHub Release Audio URL:</label>
+  <input 
+    type="text" 
+    id="githubUrl" 
+    value="https://github.com/abulka/unjazz/releases/download/v1.0/test-album-2025-12-26.Faure.Libera.Me.Midi.mp3"
+  />
+  
+  <button onclick="testProxy()">Test Proxy</button>
+  <button onclick="testDirect()">Test Direct (will fail in Safari)</button>
+  
+  <div id="result"></div>
+  <audio id="player" controls style="display:none"></audio>
+
+  <script>
+    async function testProxy() {
+      const workerUrl = document.getElementById('workerUrl').value.trim();
+      const githubUrl = document.getElementById('githubUrl').value.trim();
+      const resultDiv = document.getElementById('result');
+      const player = document.getElementById('player');
+      
+      if (!workerUrl || !githubUrl) {
+        showResult('Please fill in both URLs', 'error');
+        return;
+      }
+      
+      const proxyUrl = `${workerUrl}?url=${encodeURIComponent(githubUrl)}`;
+      
+      showResult('Testing proxy... ⏳', '');
+      
+      try {
+        // Test HEAD request
+        const response = await fetch(proxyUrl, { 
+          method: 'HEAD',
+          mode: 'cors' // Explicitly request CORS
+        });
+        
+        const corsHeader = response.headers.get('access-control-allow-origin');
+        const contentType = response.headers.get('content-type');
+        
+        // Debug: Show all visible headers
+        const allHeaders = [];
+        response.headers.forEach((value, key) => {
+          allHeaders.push(`${key}: ${value}`);
+        });
+        
+        if (response.ok && corsHeader === '*') {
+          showResult(`
+            ✅ <strong>Proxy working!</strong><br><br>
+            Status: ${response.status} ${response.statusText}<br>
+            CORS Header: ${corsHeader}<br>
+            Content-Type: ${contentType}<br><br>
+            <strong>Proxied URL:</strong><br>
+            <code style="word-break: break-all; background: #1a1a1a; padding: 5px; display: block;">${proxyUrl}</code>
+          `, 'success');
+          
+          // Try to play audio
+          player.src = proxyUrl;
+          player.style.display = 'block';
+          player.load();
+        } else if (response.ok && !corsHeader) {
+          showResult(`
+            ⚠️ <strong>Worker is responding but headers not visible to JavaScript</strong><br><br>
+            Status: ${response.status}<br>
+            This is normal when testing from a local file (file://).<br><br>
+            <strong>Visible headers:</strong><br>
+            <code style="background: #1a1a1a; padding: 10px; display: block; white-space: pre-wrap;">${allHeaders.join('\n')}</code><br>
+            <strong>The worker IS working correctly!</strong><br>
+            Check the Network tab to confirm CORS headers are present.
+          `, 'success');
+          
+          // Try to play audio anyway
+          player.src = proxyUrl;
+          player.style.display = 'block';
+          player.load();
+        } else {
+          showResult(`
+            ❌ <strong>Proxy configuration issue</strong><br><br>
+            Status: ${response.status}<br>
+            CORS Header: ${corsHeader || 'Missing!'}<br>
+            Expected: *
+          `, 'error');
+        }
+      } catch (error) {
+        showResult(`
+          ❌ <strong>Error:</strong> ${error.message}<br><br>
+          Check your worker URL and try again.
+        `, 'error');
+      }
+    }
+    
+    async function testDirect() {
+      const githubUrl = document.getElementById('githubUrl').value.trim();
+      const resultDiv = document.getElementById('result');
+      const player = document.getElementById('player');
+      
+      if (!githubUrl) {
+        showResult('Please fill in GitHub URL', 'error');
+        return;
+      }
+      
+      showResult('Testing direct GitHub URL... ⏳<br>(This will likely fail in Safari)', '');
+      
+      try {
+        const response = await fetch(githubUrl, { method: 'HEAD' });
+        const corsHeader = response.headers.get('access-control-allow-origin');
+        
+        if (response.ok) {
+          showResult(`
+            ⚠️ <strong>Direct URL loaded</strong><br><br>
+            Status: ${response.status}<br>
+            CORS Header: ${corsHeader || 'Missing (Safari will block)'}<br><br>
+            ${corsHeader ? 'Surprisingly working!' : 'Safari will block audio playback'}
+          `, corsHeader ? 'success' : 'error');
+          
+          // Try to play audio
+          player.src = githubUrl;
+          player.style.display = 'block';
+          player.load();
+        }
+      } catch (error) {
+        showResult(`
+          ❌ <strong>Direct URL failed (expected in Safari)</strong><br><br>
+          Error: ${error.message}<br><br>
+          This is why you need the CORS proxy!
+        `, 'error');
+      }
+    }
+    
+    function showResult(html, type) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = html;
+      resultDiv.className = 'result ' + type;
+      resultDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
