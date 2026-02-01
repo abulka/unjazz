@@ -98,17 +98,14 @@ const Album = () => {
           <div className="text-xs sm:text-sm text-gray-400 mb-1 uppercase tracking-wider">Album</div>
           <h1 className="text-2xl sm:text-4xl font-bold mb-2">{album.title}</h1>
           <p className="text-base sm:text-xl text-gray-400">{album.artist}</p>
-          <div className="text-xs sm:text-sm text-gray-500 mt-2">
-            {tracks.length} tracks
-          </div>
-        </div>
-      </div>
+          
           {album.description && (
-            <p className="text-gray-300 text-sm sm:text-base mb-4 max-w-2xl line-clamp-3 sm:line-clamp-none">
+            <p className="text-gray-300 text-sm sm:text-base mt-2 mb-2 max-w-2xl line-clamp-3 sm:line-clamp-none mx-auto sm:mx-0">
               {album.description}
             </p>
           )}
-          <div className="text-xs sm:text-sm text-gray-400">
+
+          <div className="text-xs sm:text-sm text-gray-500 mt-1">
             {tracks.length} track{tracks.length !== 1 ? 's' : ''}
           </div>
         </div>
