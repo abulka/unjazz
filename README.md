@@ -1,6 +1,12 @@
 # Unjazz 🎵
 
-A modern, SoundCloud-inspired music streaming platform built with React and deployed on GitHub Pages.
+Andy Bulka's (Unjazz) musical compositions
+
+[Unjazz Website](https://abulka.github.io/unjazz).
+
+# Summary
+
+To host my music, I built a React-based music streaming platform. It features a SoundCloud-inspired UI, high-quality audio playback with Howler.js, and seamless integration with GitHub Releases for audio hosting. The site is deployed on GitHub Pages for easy access and low cost.
 
 ## ✨ Features
 
@@ -51,6 +57,14 @@ unjazz/
 └── .github/workflows/
     └── deploy.yml           # CI/CD pipeline
 ```
+
+## 🍏 Safari Compatibility (CORS Proxy)
+
+Safari has strict requirements for audio streaming (CORS and Range headers) that GitHub Releases doesn't always satisfy by default. To fix this, we use a **Cloudflare Worker Proxy**.
+
+- **Why?** Without it, Safari may throw "Media cannot be played" or fail to seek because of missing CORS origin or partial content headers.
+- **Solution:** A tiny middleware that forwards the request from Safari to GitHub with the correct headers.
+- **Setup:** Follow the [Introduction](cloudflare-worker/README.md) and [Quick Start Guide](cloudflare-worker/QUICKSTART.md) in the `cloudflare-worker/` directory for the worker script and step-by-step deployment instructions.
 
 ## 🚀 Quick Start
 
@@ -247,6 +261,7 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxx        # For uploading to releases
 GITHUB_REPO=username/audio-repo      # Audio hosting repo
 USE_GITHUB_RELEASES=true             # Enable release uploads
 RELEASE_TAG=v1.0                     # Release version tag
+CORS_PROXY_URL=https://...           # Optional: Cloudflare Worker URL for Safari compatibility
 ```
 
 ### Customization
