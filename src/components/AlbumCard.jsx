@@ -15,14 +15,15 @@ const AlbumCard = ({ album, tracks }) => {
 
   return (
     <Link to={`/album/${album.id}`} className="group">
-      <div className="relative overflow-hidden rounded-lg bg-soundcloud-gray-medium hover:bg-soundcloud-gray-light transition-all">
+      <div 
+        className="relative overflow-hidden rounded-lg bg-soundcloud-gray-medium hover:bg-soundcloud-gray-light transition-all"
+      >
         {album.artwork ? (
           <img 
             src={album.artwork} 
             alt={album.title}
             className="w-full aspect-square object-cover"
-            style={{ filter: 'none' }}
-            data-darkreader-ignore=""
+            style={{ filter: 'none !important' }}
           />
         ) : (
           <div className="w-full aspect-square flex items-center justify-center bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark">
@@ -31,7 +32,9 @@ const AlbumCard = ({ album, tracks }) => {
         )}
         
         {/* Play Button Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+        <div 
+          className="absolute inset-0 bg-transparent group-hover:bg-black/40 transition-all flex items-center justify-center"
+        >
           <button
             onClick={handlePlayAlbum}
             className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all bg-soundcloud-orange hover:bg-soundcloud-orange-dark rounded-full p-4"

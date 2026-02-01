@@ -86,8 +86,7 @@ const Album = () => {
               src={album.artwork} 
               alt={album.title}
               className="w-64 h-64 rounded-lg object-cover shadow-2xl"
-              style={{ filter: 'none' }}
-              data-darkreader-ignore=""
+              style={{ filter: 'none !important' }}
             />
           ) : (
             <div className="w-64 h-64 rounded-lg bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark flex items-center justify-center">
