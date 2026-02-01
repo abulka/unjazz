@@ -1,6 +1,71 @@
 {
   "tracks": [
     {
+      "id": "2024-09-07-song-building-practice-(60s-70s)",
+      "title": "2024-09-07 song building practice (60s 70s)",
+      "artist": "abulka",
+      "album": "Culture",
+      "albumDescription": "made with suno from uploaded chords, melofies and musical ideas by Andy Bulka",
+      "duration": 298.32,
+      "filename": "2024-09-07 song building practice (60s 70s).mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-2024-09-07.song.building.practice.60s.70s.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
+      "waveform": "/unjazz/metadata/waveforms/2024-09-07-song-building-practice-(60s-70s).json"
+    },
+    {
+      "id": "blackout---prog",
+      "title": "Blackout - prog",
+      "artist": "abulka",
+      "album": "Culture",
+      "albumDescription": "made with suno; created=2026-01-28T09:17:36.752Z; id=d81fbdcf-b0c2-4a69-92d6-1ee9ae9f7281",
+      "duration": 136.032,
+      "filename": "Blackout - prog.mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Blackout.-.prog.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
+      "waveform": "/unjazz/metadata/waveforms/blackout---prog.json"
+    },
+    {
+      "id": "unjazz-seven---prog-quartal",
+      "title": "Unjazz Seven - prog Quartal",
+      "artist": "abulka",
+      "album": "Culture",
+      "albumDescription": "made with suno; created=2026-01-28T11:50:02.554Z; id=b5115656-999a-4f22-a3ea-d22078542af8",
+      "duration": 316.224,
+      "filename": "Unjazz Seven - prog Quartal.mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Unjazz.Seven.-.prog.Quartal.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
+      "waveform": "/unjazz/metadata/waveforms/unjazz-seven---prog-quartal.json"
+    },
+    {
+      "id": "ventricular---a7---(60s)",
+      "title": "Ventricular - a7 - (60s)",
+      "artist": "abulka",
+      "album": "Culture",
+      "albumDescription": "made with suno; created=2026-01-27T11:35:23.104Z; id=386b67f7-c9e4-4c0e-9e68-306346c325c3",
+      "duration": 158.4,
+      "filename": "Ventricular - a7 - (60s).mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Ventricular.-.a7.-.60s.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
+      "waveform": "/unjazz/metadata/waveforms/ventricular---a7---(60s).json"
+    },
+    {
+      "id": "weapons-check1",
+      "title": "Weapons Check1",
+      "artist": "Unknown Artist",
+      "album": "Culture",
+      "albumDescription": "",
+      "duration": 349.1787755102041,
+      "filename": "Weapons Check1.mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Weapons.Check1.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
+      "waveform": "/unjazz/metadata/waveforms/weapons-check1.json"
+    },
+    {
       "id": "2025-12-06-stable-audio-2.5---02",
       "title": "2025-12-06 stable-audio-2.5 - 02",
       "artist": "Unjazz - Andy Bulka",
@@ -38,6 +103,19 @@
       "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-Deep.Cooking.-.bass.fragment1.mp3",
       "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/deep-cooking---bass-fragment1.json"
+    },
+    {
+      "id": "wild-sunflowers---vocal-2",
+      "title": "Wild Sunflowers - Vocal 2",
+      "artist": "Unknown Artist",
+      "album": "test-album",
+      "albumDescription": "",
+      "duration": 237.744,
+      "filename": "Wild Sunflowers - Vocal 2.mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-Wild.Sunflowers.-.Vocal.2.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-cover-.DSC00346.png",
+      "waveform": "/unjazz/metadata/waveforms/wild-sunflowers---vocal-2.json"
     },
     {
       "id": "stable-audio-2.5---02-(cover)",
