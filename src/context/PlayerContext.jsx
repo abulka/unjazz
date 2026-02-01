@@ -22,6 +22,7 @@ export const PlayerProvider = ({ children }) => {
   const progressInterval = useRef(null)
   const playlistRef = useRef([])
   const currentTrackRef = useRef(null)
+  const isSeeking = useRef(false)
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -60,16 +61,22 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     if (isPlaying && soundRef.current) {
       progressInterval.current = setInterval(() => {
-        const seek = soundRef.current.seek()
-        setProgress(seek)
+        // Don't update progress while seeking
+        if (isSeeking.current) return
         
-        // Update Media Session position
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.setPositionState({
-            duration: duration,
-            playbackRate: 1.0,
-            position: seek
-          })
+        const currentPos = soundRef.current.seek()
+        // Howler returns the sound ID if not loaded yet
+        if (typeof currentPos === 'number') {
+          setProgress(currentPos)
+          
+          // Update Media Session position
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.setPositionState({
+              duration: duration,
+              playbackRate: 1.0,
+              position: currentPos
+            })
+          }
         }
       }, 100)
     } else {
@@ -85,6 +92,12 @@ export const PlayerProvider = ({ children }) => {
   }, [isPlaying, duration])
 
   const loadTrack = (track, startTime = 0) => {
+    // Clear any existing progress interval
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current)
+      progressInterval.current = null
+    }
+    
     if (soundRef.current) {
       soundRef.current.unload()
     }
@@ -95,11 +108,13 @@ export const PlayerProvider = ({ children }) => {
       format: ['mp3'],
       volume: volume,
       onload: function() {
-        setDuration(sound.duration())
-        // Seek to start time if specified
+        const trackDuration = sound.duration()
+        setDuration(trackDuration)
+        // Seek to start time if specified (clamped to valid range)
         if (startTime > 0) {
-          sound.seek(startTime)
-          setProgress(startTime)
+          const clampedStart = Math.min(startTime, trackDuration - 0.1)
+          sound.seek(clampedStart)
+          setProgress(clampedStart)
         }
       },
       onplay: function() {
@@ -143,8 +158,18 @@ export const PlayerProvider = ({ children }) => {
 
   const seek = (time) => {
     if (soundRef.current) {
-      soundRef.current.seek(time)
-      setProgress(time)
+      // Clamp time to valid range
+      const clampedTime = Math.max(0, Math.min(time, duration))
+      
+      // Set seeking flag to prevent progress updates during seek
+      isSeeking.current = true
+      soundRef.current.seek(clampedTime)
+      setProgress(clampedTime)
+      
+      // Clear seeking flag after a short delay
+      setTimeout(() => {
+        isSeeking.current = false
+      }, 150)
     }
   }
 

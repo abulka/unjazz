@@ -21,7 +21,8 @@ const AlbumCard = ({ album, tracks }) => {
             src={album.artwork} 
             alt={album.title}
             className="w-full aspect-square object-cover"
-            data-darkreader-ignore
+            style={{ filter: 'none' }}
+            data-darkreader-ignore=""
           />
         ) : (
           <div className="w-full aspect-square flex items-center justify-center bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark">

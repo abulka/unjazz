@@ -69,7 +69,7 @@ const TrackItem = ({ track, playlist, waveformData }) => {
             <Waveform 
               waveformData={waveformData}
               progress={isCurrentTrack ? progress : 0}
-              duration={isCurrentTrack ? duration : track.duration}
+              duration={track.duration}
               onSeek={handleWaveformSeek}
             />
           )}
