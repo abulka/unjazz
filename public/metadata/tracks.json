@@ -129,6 +129,19 @@
       "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-stable-audio-2.5.-.02.Cover.mp3",
       "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/stable-audio-2.5---02-(cover).json"
+    },
+    {
+      "id": "2024-03-01-now-we-are-talking---combined-best1+best2",
+      "title": "Now We Are Talking",
+      "artist": "Unjazz",
+      "album": "Winter Vibes",
+      "albumDescription": "",
+      "duration": 309.504,
+      "filename": "2024-03-01 now we are talking - combined best1+best2.mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FWinter.Vibes-2024-03-01.now.we.are.talking.-.combined.best1%252Bbest2.mp3",
+      "artwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FWinter.Vibes-XnNRsUOPD9dTXXzrrqRu--0--_3xqW.jpg",
+      "waveform": "/unjazz/metadata/waveforms/2024-03-01-now-we-are-talking---combined-best1+best2.json"
     }
   ]
 }

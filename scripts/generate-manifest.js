@@ -230,7 +230,14 @@ async function extractMetadata(filePath, albumName) {
       title: metadata.common.title || fileName.replace(/\.[^/.]+$/, ''),
       artist: metadata.common.artist || 'Unknown Artist',
       album: metadata.common.album || albumName,
-      albumDescription: metadata.common.comment?.[0] || '',
+      albumDescription: (() => {
+        const comment = metadata.common.comment?.[0]
+        if (!comment) return ''
+        const text = comment.text || comment
+        if (typeof text !== 'string') return ''
+        if (comment.descriptor?.startsWith?.('iTun')) return ''
+        return text
+      })(),
       duration: metadata.format.duration || 0,
       filename: fileName,
       trackNumber: metadata.common.track?.no || 0
