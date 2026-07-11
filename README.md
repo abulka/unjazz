@@ -111,6 +111,13 @@ To test the mobile experience on your physical iPhone while developing:
 
 ### Method 1: Local Development (Simple)
 
+For local testing without uploading to GitHub, set `USE_GITHUB_RELEASES=false` in `.env`. The generate script will skip all GitHub API calls and build local URLs instead.
+
+```bash
+# .env
+USE_GITHUB_RELEASES=false
+```
+
 1. **Add MP3 files to album folder:**
    ```bash
    mkdir -p public/albums/summer-vibes
@@ -151,6 +158,16 @@ To test the mobile experience on your physical iPhone while developing:
    git commit -m "Add new album"
    git push
    ```
+
+### Reorganizing Songs Between Albums
+
+Moving an MP3 from one album directory to another and re-running `npm run generate` handles itself cleanly:
+
+- The script names GitHub assets as `{albumDir}-{filename}` (e.g. `Culture-song.mp3`)
+- The old asset is detected as orphaned and **deleted** from the release
+- A new asset with the new album's prefix is **uploaded** to the release
+- No duplicates accumulate on GitHub
+- The track's `album` field in `tracks.json` updates to match its new directory
 
 ## 🎨 Metadata Format
 
