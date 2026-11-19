@@ -66,3 +66,19 @@ export default defineConfig(({ command }) => ({
 - If the vite.config hack ever causes issues with a Vite upgrade
 - If you add more fetch calls and keep duplicating the `/unjazz/` prefix
 - If the warning pops up again due to a Vite behavior change
+
+## m4a (AAC) Support — Planned
+
+m4a is a valid streaming format (AAC in an MP4 container: native in Safari/iOS and Chrome/Edge, platform codecs in Firefox), but the pipeline is mp3-only in two places:
+
+1. **`scripts/generate-manifest.js`** — `files.filter(f => f.endsWith('.mp3'))`, and the waveform temp path is derived with `filePath.replace('.mp3', '.json')`.
+2. **`src/context/PlayerContext.jsx`** — `format: ['mp3']` on the `Howl` instance. This is not optional: audio URLs are wrapped in the Cloudflare proxy (`...workers.dev/?url=...`), so Howler cannot infer the format from the extension.
+
+To add support:
+
+- Accept `.mp3` and `.m4a` when scanning album folders.
+- Add a `format` field per track in `tracks.json`, derived from the filename extension.
+- Have `PlayerContext` use `track.format` (defaulting to `'mp3'`).
+- `audiowaveform` already handles m4a through ffmpeg, so waveform generation needs no change beyond the filename logic.
+
+Do **not** convert m4a to mp3 as a workaround: AAC → MP3 is a decode plus a second lossy encode, so it costs quality and increases file size. Prefer whatever encode is closest to the original source.

@@ -101,6 +101,7 @@ function normalizeAssetName(filename) {
  * This enables Safari compatibility with GitHub Releases
  */
 function wrapWithCorsProxy(url) {
+  if (!url) return url
   if (!CONFIG.corsProxyUrl || !url.startsWith('https://github.com/')) {
     return url
   }
@@ -274,6 +275,8 @@ async function generateManifest() {
     }
   }
 
+  const albumsWithoutArtwork = []
+
   try {
     // Read albums directory
     const albums = await fs.readdir(CONFIG.albumsDir)
@@ -297,7 +300,6 @@ async function generateManifest() {
         expectedAssets.add(normalizedAssetName)
         
         if (CONFIG.useGithubReleases) {
-          // Check if already exists (compare normalized names)
           const existingAsset = existingAssets.find(a => normalizeAssetName(a.name) === normalizedAssetName)
           if (existingAsset) {
             console.log(`   ✓ Artwork already uploaded: ${artworkFile}`)
@@ -313,6 +315,9 @@ async function generateManifest() {
         } else {
           artworkUrl = `${CONFIG.basePath}/albums/${albumDir}/${artworkFile}`
         }
+      } else {
+        console.warn(`   ⚠️  No artwork found — album will use a fallback icon`)
+        albumsWithoutArtwork.push(albumDir)
       }
 
       // Process MP3 files
@@ -424,7 +429,15 @@ async function generateManifest() {
     console.log(`\n✨ Manifest generated successfully!`)
     console.log(`📊 Total tracks: ${tracks.length}`)
     console.log(`📁 Albums found: ${[...new Set(tracks.map(t => t.album))].length}`)
-    console.log(`📄 Output: ${CONFIG.metadataDir}/tracks.json\n`)
+    console.log(`📄 Output: ${CONFIG.metadataDir}/tracks.json`)
+
+    if (albumsWithoutArtwork.length > 0) {
+      console.log(`\n⚠️  Albums without artwork (using fallback icon):`)
+      for (const name of albumsWithoutArtwork) {
+        console.log(`   • ${name}`)
+      }
+      console.log(`   Add a .jpg, .jpeg, .png, or .webp file to each album folder and re-run generate to include artwork.\n`)
+    }
 
   } catch (error) {
     console.error('❌ Error generating manifest:', error)

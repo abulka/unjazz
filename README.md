@@ -8,6 +8,10 @@ Andy Bulka's (Unjazz) musical compositions
 
 To host my music, I built a React-based music streaming platform. It features a SoundCloud-inspired UI, high-quality audio playback with Howler.js, and seamless integration with GitHub Releases for audio hosting. The site is deployed on GitHub Pages for easy access and low cost.
 
+## Screenshot
+
+![Unjazz Screenshot](doco/images/unjazz-1.png)
+
 ## ✨ Features
 
 - 🎨 **SoundCloud-style UI** with waveform visualizations
