@@ -122,12 +122,14 @@ For local testing without uploading to GitHub, set `USE_GITHUB_RELEASES=false` i
 USE_GITHUB_RELEASES=false
 ```
 
-1. **Add MP3 files to album folder:**
+1. **Add audio files to album folder (mp3 or m4a):**
    ```bash
    mkdir -p public/albums/summer-vibes
    cp your-track.mp3 public/albums/summer-vibes/
    cp cover.jpg public/albums/summer-vibes/
    ```
+
+   > **Suno downloads:** Suno's default `.m4a` is Opus-in-MP4, which Safari/iOS cannot play. `npm run generate` detects and skips these. Use the `.wav` that Suno also downloads and encode it to AAC m4a (or mp3) first — see [DEVELOPER.md](DEVELOPER.md#m4a-aac-support).
 
 2. **Generate metadata:**
    ```bash

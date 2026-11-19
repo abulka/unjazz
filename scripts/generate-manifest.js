@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import os from 'os'
 import path from 'path'
 import { parseFile } from 'music-metadata'
 import { Octokit } from '@octokit/rest'
@@ -26,6 +27,16 @@ const CONFIG = {
 // Initialize GitHub API client
 const octokit = CONFIG.githubToken ? new Octokit({ auth: CONFIG.githubToken }) : null
 
+// Audio formats accepted in album folders. The value is the Howler format string.
+const AUDIO_EXTENSIONS = ['.mp3', '.m4a']
+
+// Codecs Safari can decode per container. Suno's default m4a downloads are
+// Opus-in-MP4, which Safari/iOS refuse to play, so we reject those early.
+const SAFARI_SAFE_CODECS = {
+  '.mp3': ['mp3'],
+  '.m4a': ['aac', 'alac', 'mp3']
+}
+
 /**
  * Simple deterministic hash function for seeding
  */
@@ -48,25 +59,59 @@ function seededRandom(seed) {
 }
 
 /**
- * Generate waveform data from MP3 file
+ * Probe the audio codec with ffprobe (returns null if ffprobe is unavailable)
+ */
+async function probeAudioCodec(filePath) {
+  try {
+    const { stdout } = await execAsync(
+      `ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "${filePath}"`
+    )
+    return stdout.trim().toLowerCase() || null
+  } catch (error) {
+    return null
+  }
+}
+
+/**
+ * Check whether a container/codec combination plays in Safari/iOS
+ */
+function isSafariPlayable(extension, codec) {
+  if (!codec) return true // cannot verify without ffprobe; allow it
+  const allowed = SAFARI_SAFE_CODECS[extension]
+  return !allowed || allowed.includes(codec)
+}
+
+/**
+ * Generate waveform data from an audio file
  * Returns array of normalized amplitudes (0-1)
  */
 async function generateWaveform(filePath, trackId, samples = 500) {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'unjazz-waveform-'))
+  const outputPath = path.join(tmpDir, 'peaks.json')
+
   try {
-    // Try using audiowaveform CLI if available
-    const outputPath = filePath.replace('.mp3', '.json')
-    await execAsync(`audiowaveform -i "${filePath}" -o "${outputPath}" --pixels-per-second 20 --bits 8`)
-    
+    try {
+      // audiowaveform handles mp3 directly but cannot read m4a/mp4 on brew builds
+      await execAsync(`audiowaveform -i "${filePath}" -o "${outputPath}" --pixels-per-second 20 --bits 8`)
+    } catch (directError) {
+      // Decode via ffmpeg to wav first, then let audiowaveform read that
+      console.log(`    … audiowaveform could not read ${path.basename(filePath)}, decoding via ffmpeg`)
+      const wavPath = path.join(tmpDir, 'decoded.wav')
+      await execAsync(
+        `ffmpeg -hide_banner -loglevel error -y -i "${filePath}" -ac 1 -ar 22050 -c:a pcm_s16le "${wavPath}"`
+      )
+      await execAsync(`audiowaveform -i "${wavPath}" -o "${outputPath}" --pixels-per-second 20 --bits 8`)
+    }
+
     const waveformData = JSON.parse(await fs.readFile(outputPath, 'utf-8'))
-    await fs.unlink(outputPath) // Clean up temp file
-    
+
     // audiowaveform returns min/max pairs, we'll use max values for amplitude
     const data = waveformData.data
     const maxValues = []
     for (let i = 0; i < data.length; i += 2) {
       maxValues.push(Math.abs(data[i + 1])) // Use max value from each pair
     }
-    
+
     // Resample to fixed length for consistent display
     const resampled = []
     const step = maxValues.length / samples
@@ -74,7 +119,7 @@ async function generateWaveform(filePath, trackId, samples = 500) {
       const index = Math.floor(i * step)
       resampled.push(maxValues[index] || 0)
     }
-    
+
     // Normalize to 0-1 range
     const max = Math.max(...resampled)
     return resampled.map(v => v / max)
@@ -85,15 +130,21 @@ async function generateWaveform(filePath, trackId, samples = 500) {
     return Array.from({ length: samples }, (_, i) => {
       return seededRandom(seed + i) * 0.5 + 0.3
     })
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
   }
 }
 
 /**
  * Normalize filename for GitHub asset comparison
- * GitHub converts spaces and some special chars to dots/hyphens
+ * GitHub converts spaces to dots and strips some punctuation, including
+ * parentheses and commas
  */
 function normalizeAssetName(filename) {
-  return filename.replace(/\s+/g, '.').replace(/[()]/g, '')
+  return filename
+    .toLowerCase()
+    .replace(/\s+/g, '.')
+    .replace(/[(),]/g, '')
 }
 
 /**
@@ -241,6 +292,7 @@ async function extractMetadata(filePath, albumName) {
       })(),
       duration: metadata.format.duration || 0,
       filename: fileName,
+      format: path.extname(fileName).slice(1).toLowerCase(),
       trackNumber: metadata.common.track?.no || 0
     }
   } catch (error) {
@@ -276,6 +328,7 @@ async function generateManifest() {
   }
 
   const albumsWithoutArtwork = []
+  const skippedFiles = []
 
   try {
     // Read albums directory
@@ -320,45 +373,56 @@ async function generateManifest() {
         albumsWithoutArtwork.push(albumDir)
       }
 
-      // Process MP3 files
-      const mp3Files = files.filter(f => f.endsWith('.mp3'))
+      // Process supported audio files (mp3, m4a)
+      const audioFiles = files.filter(f => AUDIO_EXTENSIONS.includes(path.extname(f).toLowerCase()))
 
-      for (const mp3File of mp3Files) {
-        const mp3Path = path.join(albumPath, mp3File)
-        console.log(`  🎵 Processing: ${mp3File}`)
+      for (const audioFile of audioFiles) {
+        const audioPath = path.join(albumPath, audioFile)
+        const extension = path.extname(audioFile).toLowerCase()
+        console.log(`  🎵 Processing: ${audioFile}`)
+
+        // Reject containers/codecs that Safari and iOS cannot play (e.g. Suno's
+        // Opus-in-MP4 m4a downloads) before anything is uploaded
+        const codec = await probeAudioCodec(audioPath)
+        if (!isSafariPlayable(extension, codec)) {
+          console.error(`    ❌ Skipping: ${codec} audio in a ${extension} container is not playable in Safari/iOS`)
+          console.error(`       Replace it with a WAV/MP3, or encode the WAV to AAC m4a (see DEVELOPER.md)`)
+          skippedFiles.push(audioFile)
+          continue
+        }
 
         // Extract metadata
-        const metadata = await extractMetadata(mp3Path, albumDir)
+        const metadata = await extractMetadata(audioPath, albumDir)
         if (!metadata) continue
 
-        // Generate or upload MP3 URL
-        const mp3AssetName = `${albumDir}-${mp3File}`
-        const normalizedMp3Name = normalizeAssetName(mp3AssetName)
-        expectedAssets.add(normalizedMp3Name)
+        // Generate or upload audio URL
+        const audioAssetName = `${albumDir}-${audioFile}`
+        const normalizedAudioName = normalizeAssetName(audioAssetName)
+        expectedAssets.add(normalizedAudioName)
         let audioUrl
-        
+
         if (CONFIG.useGithubReleases) {
           // Check if already exists (compare normalized names)
-          const existingAsset = existingAssets.find(a => normalizeAssetName(a.name) === normalizedMp3Name)
+          const existingAsset = existingAssets.find(a => normalizeAssetName(a.name) === normalizedAudioName)
           if (existingAsset) {
             console.log(`    ✓ Already uploaded`)
             audioUrl = existingAsset.browser_download_url
           } else {
             console.log(`    ⬆️  Uploading to GitHub Releases...`)
-            audioUrl = await uploadToGitHubRelease(mp3Path, mp3AssetName, release)
+            audioUrl = await uploadToGitHubRelease(audioPath, audioAssetName, release)
             if (!audioUrl) {
-              console.error(`    ❌ Failed to upload ${mp3File}`)
-              continue
+              // Never write a manifest that quietly omits a track
+              throw new Error(`Failed to upload ${audioFile} to the GitHub release`)
             }
           }
         } else {
-          audioUrl = `${CONFIG.basePath}/albums/${albumDir}/${mp3File}`
+          audioUrl = `${CONFIG.basePath}/albums/${albumDir}/${audioFile}`
         }
 
         // Generate waveform (check if already exists to avoid re-processing)
         const waveformPath = path.join(CONFIG.metadataDir, 'waveforms', `${metadata.id}.json`)
         let waveformData
-        
+
         try {
           // Try to load existing waveform
           const existingWaveform = await fs.readFile(waveformPath, 'utf-8')
@@ -367,12 +431,12 @@ async function generateManifest() {
         } catch (error) {
           // Generate new waveform if not cached
           console.log(`    🌊 Generating waveform...`)
-          waveformData = await generateWaveform(mp3Path, metadata.id)
-          
+          waveformData = await generateWaveform(audioPath, metadata.id)
+
           // Save individual waveform file
           await fs.writeFile(waveformPath, JSON.stringify(waveformData))
         }
-        
+
         waveforms[metadata.id] = waveformData
 
         // Add track to manifest
@@ -437,6 +501,14 @@ async function generateManifest() {
         console.log(`   • ${name}`)
       }
       console.log(`   Add a .jpg, .jpeg, .png, or .webp file to each album folder and re-run generate to include artwork.\n`)
+    }
+
+    if (skippedFiles.length > 0) {
+      console.log(`\n⚠️  Skipped ${skippedFiles.length} file(s) that Safari/iOS cannot play:`)
+      for (const name of skippedFiles) {
+        console.log(`   • ${name}`)
+      }
+      console.log(`   Encode the WAV/MP3 source to AAC m4a or mp3, or replace the file. See DEVELOPER.md.\n`)
     }
 
   } catch (error) {

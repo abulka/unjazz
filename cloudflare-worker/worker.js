@@ -15,7 +15,7 @@ export default {
         headers: {
           'Content-Type': 'text/plain',
           'Access-Control-Allow-Origin': '*',
-          'X-Worker-Version': '1.1'
+          'X-Worker-Version': '1.2'
         }
       });
     }
@@ -94,6 +94,23 @@ export default {
       responseHeaders.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
       responseHeaders.set('Access-Control-Allow-Headers', 'Range, Content-Type');
       responseHeaders.set('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges');
+
+      // GitHub serves release assets as application/octet-stream. Give browsers
+      // a real MIME type so Safari chooses the right decoder (m4a/AAC needs
+      // audio/mp4; mp3 works either way but is corrected too).
+      const assetPath = new URL(audioUrl).pathname.toLowerCase();
+      const mimeTypes = {
+        '.mp3': 'audio/mpeg',
+        '.m4a': 'audio/mp4',
+        '.mp4': 'audio/mp4',
+        '.aac': 'audio/aac',
+        '.ogg': 'audio/ogg',
+        '.opus': 'audio/ogg'
+      };
+      const extension = Object.keys(mimeTypes).find(ext => assetPath.endsWith(ext));
+      if (extension) {
+        responseHeaders.set('Content-Type', mimeTypes[extension]);
+      }
       
       // Cache for 1 hour (GitHub releases are immutable)
       responseHeaders.set('Cache-Control', 'public, max-age=3600');

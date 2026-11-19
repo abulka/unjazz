@@ -105,7 +105,9 @@ export const PlayerProvider = ({ children }) => {
     const sound = new Howl({
       src: [track.url],
       html5: true,
-      format: ['mp3'],
+      // Audio URLs go through the CORS proxy, so the extension is hidden and
+      // Howler cannot infer the format. Track format comes from the manifest.
+      format: [track.format || 'mp3'],
       volume: volume,
       onload: function() {
         const trackDuration = sound.duration()

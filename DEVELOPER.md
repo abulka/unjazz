@@ -67,18 +67,35 @@ export default defineConfig(({ command }) => ({
 - If you add more fetch calls and keep duplicating the `/unjazz/` prefix
 - If the warning pops up again due to a Vite behavior change
 
-## m4a (AAC) Support — Planned
+## m4a (AAC) Support
 
-m4a is a valid streaming format (AAC in an MP4 container: native in Safari/iOS and Chrome/Edge, platform codecs in Firefox), but the pipeline is mp3-only in two places:
+Album folders accept `.mp3` and `.m4a`. Each track in `tracks.json` carries a `format` field, and `src/context/PlayerContext.jsx` passes it to Howler (`format: [track.format || 'mp3']`). That is required because audio URLs are wrapped in the Cloudflare proxy (`...workers.dev/?url=...`), so Howler cannot infer the format from the extension.
 
-1. **`scripts/generate-manifest.js`** — `files.filter(f => f.endsWith('.mp3'))`, and the waveform temp path is derived with `filePath.replace('.mp3', '.json')`.
-2. **`src/context/PlayerContext.jsx`** — `format: ['mp3']` on the `Howl` instance. This is not optional: audio URLs are wrapped in the Cloudflare proxy (`...workers.dev/?url=...`), so Howler cannot infer the format from the extension.
+### Suno's m4a downloads are NOT AAC
 
-To add support:
+Suno's default `.m4a` downloads (all 38 in `~/Downloads/Suno Downloads`) contain **Opus in an MP4 container**. Chrome and Firefox can play Opus-in-MP4; **Safari and iOS cannot** (`canPlayType('audio/mp4; codecs="opus"')` returns false), and macOS `afinfo` reports a 0-second duration for them.
 
-- Accept `.mp3` and `.m4a` when scanning album folders.
-- Add a `format` field per track in `tracks.json`, derived from the filename extension.
-- Have `PlayerContext` use `track.format` (defaulting to `'mp3'`).
-- `audiowaveform` already handles m4a through ffmpeg, so waveform generation needs no change beyond the filename logic.
+`generate-manifest.js` therefore probes every file with `ffprobe` and skips anything outside `SAFARI_SAFE_CODECS`:
 
-Do **not** convert m4a to mp3 as a workaround: AAC → MP3 is a decode plus a second lossy encode, so it costs quality and increases file size. Prefer whatever encode is closest to the original source.
+```js
+{ '.mp3': ['mp3'], '.m4a': ['aac', 'alac', 'mp3'] }
+```
+
+A skipped file is reported at the end of the run and is never uploaded. If `ffprobe` is missing the check is skipped with a warning. Upload failures now abort the run, so a track can never silently disappear from `tracks.json`.
+
+Suno downloads usually include a `.wav` next to the `.m4a` — encode that once (single lossy generation, far better than transcoding the Opus):
+
+```bash
+ffmpeg -i "track.wav" -c:a aac -b:a 192k -movflags +faststart \
+  -metadata title="Track Title" -metadata artist="Unjazz (Andy Bulka)" \
+  "public/albums/Album Name/track.m4a"
+```
+
+### Waveforms for m4a
+
+Homebrew's `audiowaveform` cannot read m4a, so `generateWaveform()` first tries it directly and, on failure, decodes to a temporary 22 kHz mono WAV with `ffmpeg` before generating peaks. Both tools are required for m4a; without them the deterministic fake waveform fallback is used.
+
+### Asset name normalization
+
+GitHub rewrites release asset names (spaces become dots, parentheses and commas are stripped). `normalizeAssetName()` mirrors that so re-running generate recognises existing uploads instead of re-uploading them.
+
