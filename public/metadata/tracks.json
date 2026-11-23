@@ -106,6 +106,21 @@
       "waveform": "/unjazz/metadata/waveforms/2026-01-25-sunday-(biopsychill-2)-b.json"
     },
     {
+      "id": "2026-02-04-retrosynth---quartal---c",
+      "title": "Retrosynth",
+      "artist": "Unjazz (Andy Bulka)",
+      "album": "Summer Vibes",
+      "albumDescription": "",
+      "duration": 234.792,
+      "filename": "2026-02-04 retrosynth - Quartal - C.mp3",
+      "format": "mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FSummer.Vibes-2026-02-04.retrosynth.-.Quartal.-.C.mp3",
+      "artwork": "/unjazz/metadata/artwork/326c0d55ea8952c4.jpg",
+      "albumArtwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FSummer.Vibes-cover-.DSC00346.png",
+      "waveform": "/unjazz/metadata/waveforms/2026-02-04-retrosynth---quartal---c.json"
+    },
+    {
       "id": "2026-06-28-art-3vocals---stage---best",
       "title": "Stage (Vocals)",
       "artist": "Unjazz",
