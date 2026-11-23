@@ -22,7 +22,7 @@ const Home = () => {
               id: albumId,
               title: track.album,
               artist: track.artist,
-              artwork: track.artwork,
+              artwork: track.albumArtwork,
               tracks: []
             }
           }

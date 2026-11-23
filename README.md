@@ -190,7 +190,8 @@ The generator reads ID3 tags from MP3 files and creates `tracks.json`:
       "albumDescription": "Optional description",
       "duration": 184.5,
       "url": "https://github.com/.../releases/download/v1.0/track.mp3",
-      "artwork": "https://github.com/.../cover.jpg",
+      "artwork": "/unjazz/metadata/artwork/1a2b3c4d5e6f7890.jpg",
+      "albumArtwork": "https://github.com/.../cover.jpg",
       "waveform": "/metadata/waveforms/track-id.json"
     }
   ]

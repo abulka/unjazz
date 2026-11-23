@@ -95,6 +95,14 @@ ffmpeg -i "track.wav" -c:a aac -b:a 192k -movflags +faststart \
 
 Homebrew's `audiowaveform` cannot read m4a, so `generateWaveform()` first tries it directly and, on failure, decodes to a temporary 22 kHz mono WAV with `ffmpeg` before generating peaks. Both tools are required for m4a; without them the deterministic fake waveform fallback is used.
 
+### Per-track artwork
+
+Each track shows its own cover art in the track list. `saveTrackArtwork()` reads the embedded picture from the audio file, downscales it to at most 512 px with `ffmpeg`, and writes it to `public/metadata/artwork/<hash>.<ext>`. The filename is a content hash, so identical covers shared by several tracks are stored once. Files are committed alongside `tracks.json`, since the deploy workflow reuses committed metadata.
+
+When a file has no embedded picture (or the format is unsupported), the track falls back to the album cover. Orphaned artwork files are pruned on every generate run.
+
+`artwork` is the track's own picture; album pages and album cards must use `albumArtwork`, which always points at the cover file in the album folder.
+
 ### Asset name normalization
 
 GitHub rewrites release asset names (spaces become dots, parentheses and commas are stripped). `normalizeAssetName()` mirrors that so re-running generate recognises existing uploads instead of re-uploading them.

@@ -34,7 +34,7 @@ const Album = () => {
             id: albumId,
             title: albumTracks[0].album,
             artist: albumTracks[0].artist,
-            artwork: albumTracks[0].artwork,
+            artwork: albumTracks[0].albumArtwork,
             description: albumTracks[0].albumDescription
           })
           setTracks(albumTracks)

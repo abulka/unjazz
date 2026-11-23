@@ -1,4 +1,4 @@
-import { Play, Pause } from 'lucide-react'
+import { Play, Pause, Music } from 'lucide-react'
 import { usePlayer } from '../context/PlayerContext'
 import Waveform from './Waveform'
 
@@ -73,6 +73,23 @@ const TrackItem = ({ track, playlist, waveformData }) => {
                 duration={track.duration}
                 onSeek={handleWaveformSeek}
               />
+            </div>
+          )}
+        </div>
+
+        {/* Artwork */}
+        <div className="flex-shrink-0 self-end w-10 h-10 sm:w-14 sm:h-14 rounded overflow-hidden">
+          {track.artwork ? (
+            <img
+              src={track.artwork}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-soundcloud-gray-medium to-soundcloud-gray-dark flex items-center justify-center">
+              <Music size={16} className="text-gray-600 sm:w-6 sm:h-6" />
             </div>
           )}
         </div>

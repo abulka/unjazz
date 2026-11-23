@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
+import crypto from 'crypto'
 import { parseFile } from 'music-metadata'
 import { Octokit } from '@octokit/rest'
 import { exec } from 'child_process'
@@ -29,6 +30,17 @@ const octokit = CONFIG.githubToken ? new Octokit({ auth: CONFIG.githubToken }) :
 
 // Audio formats accepted in album folders. The value is the Howler format string.
 const AUDIO_EXTENSIONS = ['.mp3', '.m4a']
+
+// Embedded per-track artwork is written here, so each track can show its own cover.
+const ARTWORK_DIR = './public/metadata/artwork'
+const ARTWORK_EXTENSIONS = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp'
+}
+// Thumbnails are small, so cap stored artwork to keep the deploy light.
+const ARTWORK_MAX_DIMENSION = 512
 
 // Codecs Safari can decode per container. Suno's default m4a downloads are
 // Opus-in-MP4, which Safari/iOS refuse to play, so we reject those early.
@@ -293,11 +305,95 @@ async function extractMetadata(filePath, albumName) {
       duration: metadata.format.duration || 0,
       filename: fileName,
       format: path.extname(fileName).slice(1).toLowerCase(),
-      trackNumber: metadata.common.track?.no || 0
+      trackNumber: metadata.common.track?.no || 0,
+      // Kept out of tracks.json; consumed by saveTrackArtwork
+      picture: metadata.common.picture?.[0] || null
     }
   } catch (error) {
     console.error(`Error reading metadata from ${filePath}:`, error.message)
     return null
+  }
+}
+
+/**
+ * Save a track's embedded cover art as a static file and return its URL.
+ * Files are content-hashed so repeated covers across tracks are stored once.
+ * Returns null when the file has no artwork we can handle.
+ */
+async function saveTrackArtwork(picture, expected) {
+  if (!picture?.data) return null
+
+  const format = (picture.format || '').toLowerCase()
+  const extension = ARTWORK_EXTENSIONS[format]
+  if (!extension) {
+    console.warn(`    ⚠️  Unsupported embedded artwork format: ${format || 'unknown'}`)
+    return null
+  }
+
+  const original = Buffer.from(picture.data)
+  const hash = crypto.createHash('sha1').update(original).digest('hex').slice(0, 16)
+  const fileName = `${hash}.${extension}`
+  const filePath = path.join(ARTWORK_DIR, fileName)
+  const url = `${CONFIG.basePath}/metadata/artwork/${fileName}`
+  expected.add(fileName)
+
+  try {
+    await fs.access(filePath)
+    return url
+  } catch {
+    // Not written yet — create it below
+  }
+
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'unjazz-artwork-'))
+  try {
+    const sourcePath = path.join(tmpDir, `source.${extension}`)
+    const downscaledPath = path.join(tmpDir, `downscaled.${extension}`)
+    await fs.writeFile(sourcePath, original)
+
+    try {
+      const quality = extension === 'jpg' ? '-q:v 4 ' : ''
+      await execAsync(
+        `ffmpeg -hide_banner -loglevel error -y -i "${sourcePath}" ` +
+        `-vf "scale=w='min(${ARTWORK_MAX_DIMENSION},iw)':h='min(${ARTWORK_MAX_DIMENSION},ih)':force_original_aspect_ratio=decrease" ` +
+        `${quality}"${downscaledPath}"`
+      )
+      await fs.copyFile(downscaledPath, filePath)
+    } catch (error) {
+      // ffmpeg missing or unable to decode this cover; keep the original bytes
+      await fs.writeFile(filePath, original)
+    }
+  } catch (error) {
+    // A broken cover must not fail the whole manifest; fall back to album artwork
+    console.warn(`    ⚠️  Could not save embedded artwork, using album cover: ${error.message}`)
+    expected.delete(fileName)
+    return null
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
+  }
+
+  return url
+}
+
+/**
+ * Delete artwork files that no longer belong to any track
+ */
+async function pruneOrphanedArtwork(expected) {
+  let files
+  try {
+    files = await fs.readdir(ARTWORK_DIR)
+  } catch {
+    return
+  }
+
+  let removed = 0
+  for (const file of files) {
+    if (expected.has(file)) continue
+    await fs.rm(path.join(ARTWORK_DIR, file), { force: true })
+    removed++
+  }
+
+  if (removed > 0) {
+    console.log(`🧹 Removed ${removed} orphaned artwork file(s)`)
   }
 }
 
@@ -310,10 +406,12 @@ async function generateManifest() {
   // Ensure directories exist
   await fs.mkdir(CONFIG.metadataDir, { recursive: true })
   await fs.mkdir(path.join(CONFIG.metadataDir, 'waveforms'), { recursive: true })
+  await fs.mkdir(ARTWORK_DIR, { recursive: true })
 
   const tracks = []
   const waveforms = {}
   const expectedAssets = new Set() // Track what should exist in release
+  const expectedArtwork = new Set() // Track which artwork files are still in use
 
   // Get release if using GitHub Releases
   let release = null
@@ -395,6 +493,10 @@ async function generateManifest() {
         const metadata = await extractMetadata(audioPath, albumDir)
         if (!metadata) continue
 
+        // Prefer the track's own embedded cover art, fall back to the album cover
+        const embeddedArtworkUrl = await saveTrackArtwork(metadata.picture, expectedArtwork)
+        delete metadata.picture
+
         // Generate or upload audio URL
         const audioAssetName = `${albumDir}-${audioFile}`
         const normalizedAudioName = normalizeAssetName(audioAssetName)
@@ -443,13 +545,17 @@ async function generateManifest() {
         tracks.push({
           ...metadata,
           url: wrapWithCorsProxy(audioUrl),
-          artwork: wrapWithCorsProxy(artworkUrl),
+          artwork: embeddedArtworkUrl || wrapWithCorsProxy(artworkUrl),
+          albumArtwork: wrapWithCorsProxy(artworkUrl),
           waveform: `${CONFIG.basePath}/metadata/waveforms/${metadata.id}.json`
         })
 
         console.log(`    ✅ Completed`)
       }
     }
+
+    // Clean up artwork files that no longer belong to a track
+    await pruneOrphanedArtwork(expectedArtwork)
 
     // Clean up orphaned assets from release
     if (CONFIG.useGithubReleases && release && existingAssets.length > 0) {
