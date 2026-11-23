@@ -1,21 +1,6 @@
 {
   "tracks": [
     {
-      "id": "2024-09-07-song-building-practice-(60s-70s)",
-      "title": "2024-09-07 song building practice (60s 70s)",
-      "artist": "abulka",
-      "album": "Culture",
-      "albumDescription": "made with suno from uploaded chords, melofies and musical ideas by Andy Bulka",
-      "duration": 298.32,
-      "filename": "2024-09-07 song building practice (60s 70s).mp3",
-      "format": "mp3",
-      "trackNumber": 0,
-      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-2024-09-07.song.building.practice.60s.70s.mp3",
-      "artwork": "/unjazz/metadata/artwork/4625a09b5886a8cc.jpg",
-      "albumArtwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FCulture-Gemini_Generated_Image_203pmc203pmc203p.png",
-      "waveform": "/unjazz/metadata/waveforms/2024-09-07-song-building-practice-(60s-70s).json"
-    },
-    {
       "id": "blackout---prog",
       "title": "Blackout - prog",
       "artist": "abulka",
@@ -164,6 +149,21 @@
       "artwork": "/unjazz/metadata/artwork/8bec14cafc33a846.jpg",
       "albumArtwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FSummer.Vibes-cover-.DSC00346.png",
       "waveform": "/unjazz/metadata/waveforms/26-10-iii4-artjam---ark,-i-like-it.json"
+    },
+    {
+      "id": "2024-09-07-song-building-practice-(60s-70s)",
+      "title": "2024-09-07 song building practice (60s 70s)",
+      "artist": "abulka",
+      "album": "test-album",
+      "albumDescription": "made with suno from uploaded chords, melofies and musical ideas by Andy Bulka",
+      "duration": 298.32,
+      "filename": "2024-09-07 song building practice (60s 70s).mp3",
+      "format": "mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-2024-09-07.song.building.practice.60s.70s.mp3",
+      "artwork": "/unjazz/metadata/artwork/4625a09b5886a8cc.jpg",
+      "albumArtwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2Ftest-album-test_cover_space_pair.jpg",
+      "waveform": "/unjazz/metadata/waveforms/2024-09-07-song-building-practice-(60s-70s).json"
     },
     {
       "id": "2025-12-06-stable-audio-2.5---02",
