@@ -103,6 +103,12 @@ When a file has no embedded picture (or the format is unsupported), the track fa
 
 `artwork` is the track's own picture; album pages and album cards must use `albumArtwork`, which always points at the cover file in the album folder.
 
+### Test albums
+
+Albums whose name starts with `test-` are still generated and published, but hidden from the rendered site. Append `?test-albums=true` to any URL to show them (e.g. `/unjazz/?test-albums=true` or `/unjazz/album/test-album?test-albums=true`). The filter lives in `src/lib/testAlbums.js` and is applied in `Home.jsx` and `Album.jsx`.
+
+In dev builds (`npm run dev`) the header shows a **Show test albums** toggle and a **View on live** link to the same page on GitHub Pages. Neither control is included in production builds.
+
 ### Asset name normalization
 
 GitHub rewrites release asset names (spaces become dots, parentheses and commas are stripped). `normalizeAssetName()` mirrors that so re-running generate recognises existing uploads instead of re-uploading them.

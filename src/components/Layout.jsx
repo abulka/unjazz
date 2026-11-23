@@ -1,10 +1,31 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect } from 'react'
+import { ExternalLink } from 'lucide-react'
 import AudioPlayer from './AudioPlayer'
 import { usePlayer } from '../context/PlayerContext'
+import { TEST_ALBUMS_PARAM, testAlbumsEnabled } from '../lib/testAlbums'
+
+const LIVE_ORIGIN = 'https://abulka.github.io'
 
 const Layout = ({ children }) => {
   const { currentTrack, togglePlay } = usePlayer()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const showTestAlbums = testAlbumsEnabled(searchParams.toString())
+
+  const liveUrl = `${LIVE_ORIGIN}${import.meta.env.BASE_URL.replace(/\/$/, '')}${location.pathname}${location.search}`
+
+  const toggleTestAlbums = () => {
+    const params = new URLSearchParams(searchParams)
+    if (showTestAlbums) {
+      params.delete(TEST_ALBUMS_PARAM)
+    } else {
+      params.set(TEST_ALBUMS_PARAM, 'true')
+    }
+    const search = params.toString()
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : '' })
+  }
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -38,6 +59,31 @@ const Layout = ({ children }) => {
               </Link>
             </nav>
           </div>
+
+          {/* Dev-only controls (not rendered in production builds) */}
+          {import.meta.env.DEV && (
+            <div className="mt-2 pt-2 border-t border-soundcloud-gray-medium flex items-center justify-end gap-4 text-xs text-gray-400">
+              <button
+                onClick={toggleTestAlbums}
+                className={`transition-colors ${
+                  showTestAlbums
+                    ? 'text-soundcloud-orange hover:text-soundcloud-orange-dark'
+                    : 'hover:text-soundcloud-orange'
+                }`}
+              >
+                {showTestAlbums ? 'Hide test albums' : 'Show test albums'}
+              </button>
+              <a
+                href={liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 hover:text-soundcloud-orange transition-colors"
+              >
+                View on live
+                <ExternalLink size={12} />
+              </a>
+            </div>
+          )}
         </div>
       </header>
 

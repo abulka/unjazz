@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import AlbumCard from '../components/AlbumCard'
+import { isTestAlbum, testAlbumsEnabled } from '../lib/testAlbums'
 
 const Home = () => {
   const [albums, setAlbums] = useState([])
   const [tracks, setTracks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [searchParams] = useSearchParams()
+  const showTestAlbums = testAlbumsEnabled(searchParams.toString())
 
   useEffect(() => {
     // Load tracks metadata
@@ -46,6 +50,10 @@ const Home = () => {
     )
   }
 
+  const visibleAlbums = showTestAlbums
+    ? albums
+    : albums.filter(album => !isTestAlbum(album.title))
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
       {/* Hero Section */}
@@ -57,15 +65,16 @@ const Home = () => {
       </section>
 
       {/* Albums Grid */}
-      {albums.length > 0 ? (
+      {visibleAlbums.length > 0 ? (
         <section>
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Albums</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-            {albums.map(album => (
+            {visibleAlbums.map(album => (
               <AlbumCard 
                 key={album.id} 
                 album={album} 
                 tracks={album.tracks}
+                showTestAlbums={showTestAlbums}
               />
             ))}
           </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { ArrowLeft, Music } from 'lucide-react'
 import TrackList from '../components/TrackList'
+import { isTestAlbum, testAlbumsEnabled, withTestAlbums } from '../lib/testAlbums'
 
 const Album = () => {
   const { albumId } = useParams()
@@ -9,6 +10,8 @@ const Album = () => {
   const [tracks, setTracks] = useState([])
   const [waveforms, setWaveforms] = useState({})
   const [loading, setLoading] = useState(true)
+  const [searchParams] = useSearchParams()
+  const showTestAlbums = testAlbumsEnabled(searchParams.toString())
 
   useEffect(() => {
     // Load tracks and filter by album
@@ -57,10 +60,10 @@ const Album = () => {
     )
   }
 
-  if (!album) {
+  if (!album || (isTestAlbum(album.title) && !showTestAlbums)) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-8">
+        <Link to={withTestAlbums('/', showTestAlbums)} className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-8">
           <ArrowLeft size={20} />
           Back to Home
         </Link>
@@ -73,7 +76,7 @@ const Album = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
-      <Link to="/" className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-4 sm:mb-8">
+      <Link to={withTestAlbums('/', showTestAlbums)} className="inline-flex items-center gap-2 text-soundcloud-orange hover:text-soundcloud-orange-dark mb-4 sm:mb-8">
         <ArrowLeft size={20} />
         Back to Home
       </Link>

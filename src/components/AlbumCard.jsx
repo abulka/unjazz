@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Play, Music } from 'lucide-react'
 import { usePlayer } from '../context/PlayerContext'
+import { withTestAlbums } from '../lib/testAlbums'
 
-const AlbumCard = ({ album, tracks }) => {
+const AlbumCard = ({ album, tracks, showTestAlbums = false }) => {
   const { playTrack } = usePlayer()
 
   const handlePlayAlbum = (e) => {
@@ -14,7 +15,7 @@ const AlbumCard = ({ album, tracks }) => {
   }
 
   return (
-    <Link to={`/album/${album.id}`} className="group">
+    <Link to={withTestAlbums(`/album/${album.id}`, showTestAlbums)} className="group">
       <div 
         className="relative overflow-hidden rounded-lg bg-soundcloud-gray-medium hover:bg-soundcloud-gray-light transition-all"
       >
