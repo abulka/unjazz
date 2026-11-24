@@ -151,6 +151,21 @@
       "waveform": "/unjazz/metadata/waveforms/26-10-iii4-artjam---ark,-i-like-it.json"
     },
     {
+      "id": "iii5-artjam---long-groovy-blues-jam-with-roland…-x-2026-10-22-ark-(mashup)",
+      "title": "Long Roll",
+      "artist": "Unjazz (Andy Bulka)",
+      "album": "Summer Vibes",
+      "albumDescription": "",
+      "duration": 243.144,
+      "filename": "iii5 artjam - long groovy blues jam with roland… x 2026-10-22 ark (Mashup).mp3",
+      "format": "mp3",
+      "trackNumber": 0,
+      "url": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FSummer.Vibes-iii5.artjam.-.long.groovy.blues.jam.with.roland.x.2026-10-22.ark.Mashup.mp3",
+      "artwork": "/unjazz/metadata/artwork/340f0c6527bb68b2.jpg",
+      "albumArtwork": "https://unjazz-audio-proxy.abulka.workers.dev/?url=https%3A%2F%2Fgithub.com%2Fabulka%2Funjazz%2Freleases%2Fdownload%2Fv1.0%2FSummer.Vibes-cover-.DSC00346.png",
+      "waveform": "/unjazz/metadata/waveforms/iii5-artjam---long-groovy-blues-jam-with-roland…-x-2026-10-22-ark-(mashup).json"
+    },
+    {
       "id": "2024-09-07-song-building-practice-(60s-70s)",
       "title": "2024-09-07 song building practice (60s 70s)",
       "artist": "abulka",
